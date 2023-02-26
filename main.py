@@ -46,15 +46,10 @@ def get_series(production_list):
 
 # returns list of specified productions
 def search(title, production_list):
-    flag = 0
     list_of_productions = []
     for production in production_list:
         if title == production.title:
-            flag += 1
             list_of_productions.append(production)
-    if flag == 0:
-        print("Nie znaleziono zadanego tytułu.")
-        return []
     return list_of_productions
 
 
