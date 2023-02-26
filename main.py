@@ -26,26 +26,22 @@ class Series(Movie):
         return f"{self.title} S{self.season_number:02d}E{self.episode_number:02d}"
 
 
-def sort_production_list_alphabeticaly(production_list):
-    return sorted(production_list, key=lambda x: x.title.lower())
+def get_production(production_list, content_type):
+    output_list = []
+    for production in production_list:
+        if type(production) == content_type:
+            output_list.append(production)
+    return sorted(output_list, key=lambda x: x.title.lower())
 
 
 # return list of movies from production_list sorted alphabeticaly doesnt support foreign characters
 def get_movies(production_list):
-    output_list = []
-    for production in production_list:
-        if isinstance(production, Movie) and not isinstance(production, Series):
-            output_list.append(production)
-    return sort_production_list_alphabeticaly(output_list)
+    return get_production(production_list, Movie)
 
 
 # return list of series from production_list sorted alphabeticaly doesnt support foreign characters
 def get_series(production_list):
-    output_list = []
-    for production in production_list:
-        if isinstance(production, Series):
-            output_list.append(production)
-    return sort_production_list_alphabeticaly(output_list)
+    return get_production(production_list, Series)
 
 
 # returns list of specified productions
@@ -82,9 +78,7 @@ def top_titles(production_list, content_type, number_top):
         production_list, key=lambda x: x.views, reverse=True
     )
     specified_number_of_most_viewed_content_type_list = (
-        content_type_sorted_by_views_list[
-            : -(len(content_type_sorted_by_views_list) - number_top)
-        ]
+        content_type_sorted_by_views_list[:number_top]
     )
     return specified_number_of_most_viewed_content_type_list
 
