@@ -23,14 +23,11 @@ class Series(Movie):
         self.season_number = season_number
 
     def __repr__(self):
-        # Czy da się lepiej/prościej rozwiązać wymuszenie dwucyfrowej notacji?
-        ep_number = self.episode_number
-        s_number = self.season_number
-        if ep_number < 10:
-            ep_number = "0" + str(ep_number)
-        if s_number < 10:
-            s_number = "0" + str(s_number)
-        return f"{self.title} S{s_number}E{ep_number}"
+        return f"{self.title} S{self.season_number:02d}E{self.episode_number:02d}"
+
+
+def sort_production_list_alphabeticaly(production_list):
+    return sorted(production_list, key=lambda x: x.title.lower())
 
 
 # return list of movies from production_list sorted alphabeticaly doesnt support foreign characters
@@ -39,8 +36,7 @@ def get_movies(production_list):
     for production in production_list:
         if isinstance(production, Movie) and not isinstance(production, Series):
             output_list.append(production)
-    output_list = sorted(output_list, key=lambda x: x.title.lower())
-    return output_list
+    return sort_production_list_alphabeticaly(output_list)
 
 
 # return list of series from production_list sorted alphabeticaly doesnt support foreign characters
@@ -49,25 +45,21 @@ def get_series(production_list):
     for production in production_list:
         if isinstance(production, Series):
             output_list.append(production)
-    output_list = sorted(output_list, key=lambda x: x.title.lower())
-    return output_list
+    return sort_production_list_alphabeticaly(output_list)
 
 
-# returns specific production from production_list or list of them if there is multiple or blank list if there is not
+# returns list of specified productions
 def search(title, production_list):
     flag = 0
     list_of_productions = []
     for production in production_list:
         if title == production.title:
             flag += 1
-            output_production = production
             list_of_productions.append(production)
     if flag == 0:
         print("Nie znaleziono zadanego tytułu.")
         return []
-    if flag > 1:
-        return list_of_productions
-    return output_production
+    return list_of_productions
 
 
 # adding random number from 1 to 100 to random production from production_list
@@ -84,11 +76,17 @@ def generate_views10times(production_list):
 def top_titles(production_list, content_type, number_top):
     if content_type == Movie:
         production_list = get_movies(production_list)
-    if content_type == Series:
+    elif content_type == Series:
         production_list = get_series(production_list)
-    top_list = sorted(production_list, key=lambda x: x.views, reverse=True)
-    top_list = top_list[: -(len(top_list) - number_top)]
-    return top_list
+    content_type_sorted_by_views_list = sorted(
+        production_list, key=lambda x: x.views, reverse=True
+    )
+    specified_number_of_most_viewed_content_type_list = (
+        content_type_sorted_by_views_list[
+            : -(len(content_type_sorted_by_views_list) - number_top)
+        ]
+    )
+    return specified_number_of_most_viewed_content_type_list
 
 
 # adding whole season of specified series | if episodes went on different years it have to be used multiple times
@@ -122,59 +120,63 @@ def print_number_of_episodes(production_list, title, season):
     )
 
 
-print("Biblioteka filmów")
+if __name__ == "__main__":
+    print("Biblioteka filmów")
 
-library = []
-library.append(
-    Movie(title="Poranek kojota", publication_year="2001", genre="Komedia", views=0)
-)
-library.append(
-    Movie(
-        title="Chłopaki nie płaczą", publication_year="2000", genre="Komedia", views=0
+    library = []
+    library.append(
+        Movie(title="Poranek kojota", publication_year="2001", genre="Komedia", views=0)
     )
-)
-library.append(
-    Series(
-        title="Moda na sukces",
-        publication_year="1987",
-        genre="Opera mydlana",
-        views=0,
-        season_number=35,
-        episode_number=8947,
+    library.append(
+        Movie(
+            title="Chłopaki nie płaczą",
+            publication_year="2000",
+            genre="Komedia",
+            views=0,
+        )
     )
-)
-library.append(
-    Series(
-        title="Gra o tron",
-        publication_year="2011",
-        genre="Fantasy",
-        views=0,
-        season_number=8,
-        episode_number=73,
+    library.append(
+        Series(
+            title="Moda na sukces",
+            publication_year="1987",
+            genre="Opera mydlana",
+            views=0,
+            season_number=35,
+            episode_number=8947,
+        )
     )
-)
-library.append(
-    Movie(
-        title="Skazani na Shawshank",
-        publication_year="1994",
-        genre="Film fabularny",
-        views=0,
+    library.append(
+        Series(
+            title="Gra o tron",
+            publication_year="2011",
+            genre="Fantasy",
+            views=0,
+            season_number=8,
+            episode_number=73,
+        )
     )
-)
-library = add_series_season(
-    production_list=library,
-    title="Zmiennicy",
-    publication_year=1987,
-    genre="Komedia",
-    season_number=1,
-    episodes_number=15,
-)
+    library.append(
+        Movie(
+            title="Skazani na Shawshank",
+            publication_year="1994",
+            genre="Film fabularny",
+            views=0,
+        )
+    )
+    library = add_series_season(
+        production_list=library,
+        title="Zmiennicy",
+        publication_year=1987,
+        genre="Komedia",
+        season_number=1,
+        episodes_number=15,
+    )
 
-generate_views10times(library)
-generate_views10times(library)
-generate_views10times(library)
+    generate_views10times(library)
+    generate_views10times(library)
+    generate_views10times(library)
 
-today = date.today()
-today = today.strftime("%d.%m.%Y")
-print(f"Najpopularniejsze filmy i seriale dnia {today}")
-print(top_titles(library, "", 3))
+    today = date.today()
+    today = today.strftime("%d.%m.%Y")
+    print(f"Najpopularniejsze filmy i seriale dnia {today}")
+    print(top_titles(library, "", 3))
